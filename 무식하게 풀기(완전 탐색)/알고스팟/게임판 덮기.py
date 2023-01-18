@@ -31,20 +31,17 @@ def count_boardCover(boards, height, width, xco, yco):
 				_x, _y = next_xy(boards, height, width, xco, yco)
 				cnt += count_boardCover(boards, height, width, _x, _y)
 				boards[yco][xco], boards[yco + 1][xco - 1], boards[yco + 1][xco] = ".", ".", "."
-
 		if ((xco + 1) != width):
 			if (boards[yco][xco + 1] == "." and boards[yco + 1][xco] == "."): #┌
 				boards[yco][xco], boards[yco][xco + 1], boards[yco + 1][xco] = "#", "#", "#"
 				_x, _y = next_xy(boards, height, width, xco, yco)
 				cnt += count_boardCover(boards, height, width, _x, _y)
 				boards[yco][xco], boards[yco][xco + 1], boards[yco + 1][xco] = ".", ".", "."
-
 			if (boards[yco + 1][xco] == "." and boards[yco + 1][xco + 1] == "."): #└
 				boards[yco][xco], boards[yco + 1][xco], boards[yco + 1][xco + 1] = "#", "#", "#"
 				_x, _y = next_xy(boards, height, width, xco, yco)
 				cnt += count_boardCover(boards, height, width, _x, _y)
 				boards[yco][xco], boards[yco + 1][xco], boards[yco + 1][xco + 1] = ".", ".", "."
-
 			if (boards[yco][xco + 1] == "." and boards[yco + 1][xco + 1] == "."): #┐
 				boards[yco][xco], boards[yco][xco + 1], boards[yco + 1][xco + 1] = "#", "#", "#"
 				_x, _y = next_xy(boards, height, width, xco, yco)
