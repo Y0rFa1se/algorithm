@@ -34,7 +34,7 @@ def solve(clock, cnt = 0, nos = 0) -> int:
 
 	if nos == 10:
 		return -1
-		
+
 
 	ans = []
 	for times in range(4):
@@ -57,7 +57,6 @@ def solve(clock, cnt = 0, nos = 0) -> int:
 				min = _ans[i]
 
 		return min
-
 
 
 for i in range(int(input())):
