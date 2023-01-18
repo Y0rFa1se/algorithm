@@ -23,8 +23,6 @@ def switch(clock, nos, times) -> list:
 			_clock[i] = 12
 
 	return _clock
-	
-
 def solve(clock, cnt = 0, nos = 0) -> int:
 	if set(clock) == {12}:
 		return cnt
@@ -54,7 +52,6 @@ def solve(clock, cnt = 0, nos = 0) -> int:
 				min = _ans[i]
 
 		return min
-
 
 for i in range(int(input())):
 	clocks = list(map(int, input().split()))
