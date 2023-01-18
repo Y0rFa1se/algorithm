@@ -1,4 +1,5 @@
-def a(b = 0):
-	return b
+a = {1,2,3}
 
-print(a(1))
+a.discard(0)
+
+print(a[0])
