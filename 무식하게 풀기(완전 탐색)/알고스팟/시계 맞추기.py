@@ -1,6 +1,3 @@
-#import sys
-#sys.setrecursionlimit(10000000)
-
 switchs = [
 	[0, 1, 2],
 	[3, 7, 9, 11],
