@@ -83,9 +83,41 @@ def exhaustive_search(fences):
 	return max_square
 
 def divide_and_conquer(fences):
-	
+	def contiguous(fences, loc, nof):
+		h = min(fences[loc], fences[loc + 1])
+		cnt = 2
+		ind = loc - 1
+		while True:
+			if (ind == -1):
+				break
+			if (fences[ind] >= h):
+				cnt += 1
+				ind -= 1
+			else:
+				break
+		ind = loc + 2
+		while True:
+			if (ind == nof):
+				break
+			if (fences[ind] >= h):
+				cnt += 1
+				ind += 1
+			else:
+				break
+		return h * cnt
+	def _divede_and_conquer(fences, length):
+		if (length == 1):
+			return fences[0]
+
+		half = length // 2
+		ls = fences[:half]; rs = fences[half:]
+		a, b, c = _divede_and_conquer(ls, half), _divede_and_conquer(rs, length - half), contiguous(fences, half - 1, length)
+		return max(a, b, c)
+	return _divede_and_conquer(fences, len(fences))
+
 
 for i in range(putint()):
 	put()
 	fences = list(mapint())
-	out(exhaustive_search(fences)); newl()
+	# out(exhaustive_search(fences)); newl()
+	out(divide_and_conquer(fences)); newl()

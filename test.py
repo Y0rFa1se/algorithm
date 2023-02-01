@@ -1,2 +1,2 @@
-for i in range(3, 0, -1):
-	print(i)
+a = [1,2,3]
+print(a[:1])
