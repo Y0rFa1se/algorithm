@@ -1,2 +1,0 @@
-﻿울타리 잘라내기.obj : error LNK2005: main이(가) CPP.obj에 이미 정의되어 있습니다.
-D:\!Github\algorithm\CPP\x64\Debug\CPP.exe : fatal error LNK1169: 여러 번 정의된 기호가 있습니다.
