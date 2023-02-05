@@ -83,28 +83,12 @@ def exhaustive_search(fences):
 	return max_square
 
 def divide_and_conquer(fences):
-	def contiguous(fences, loc, nof):
+	def contiguous(fences, loc, length):
 		h = min(fences[loc], fences[loc + 1])
+		lh, rh = h, h
+		maxSquare = 0
 		cnt = 2
 		ind = loc - 1
-		while True:
-			if (ind == -1):
-				break
-			if (fences[ind] >= h):
-				cnt += 1
-				ind -= 1
-			else:
-				break
-		ind = loc + 2
-		while True:
-			if (ind == nof):
-				break
-			if (fences[ind] >= h):
-				cnt += 1
-				ind += 1
-			else:
-				break
-		return h * cnt
 	def _divede_and_conquer(fences, length):
 		if (length == 1):
 			return fences[0]
