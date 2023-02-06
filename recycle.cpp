@@ -1,22 +1,29 @@
 #include <iostream>
-#include <sstream>
 #include <vector>
 
 using namespace std;
 
-vector<int> split(string str, char delim){
-	vector<int> ret;
-
-	stringstream strTemp(str);
+void splitInt(vector<int> &out, string str, char delim = ' '){
 	string temp;
-
-	while (getline(strTemp, temp, delim)){ //ss를 입력받아 temp에 입력, delimiter를 받으면 중지
-		ret.push_back(stoi(temp));
+	for (int i = 0; i < str.size(); i++){
+		if (str[i] == delim){
+			out.push_back(stoi(temp));
+			temp = "";
+			continue;
+		}
+		else{
+			temp.push_back(str[i]);
+		}
 	}
-	
-	return ret;
+	out.push_back(stoi(temp));
+}
+vector<int> sliceVector(vector<int> &vec, int start_ind, int end_ind){
+	return vector<int>(vec.begin() + start_ind, vec.begin() + end_ind);
 }
 
 int main(){
-	
+	string str;
+	getline(cin, str, '\n');
+	vector<int> str_splited;
+	splitInt(str_splited, str, ' ');
 }
