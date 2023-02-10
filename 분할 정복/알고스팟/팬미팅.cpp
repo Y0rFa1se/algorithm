@@ -36,14 +36,12 @@ void vectorSubtract(vector<int> &a, vector<int> &b, vector<int> &out, int len_of
 		out.push_back(a[i] - b[i]);
 	}
 }
-vector<int> reverseVector(vector<int> &vec, int len_of_vector){
-	vector<int> ret = {};
+void reverseVector(vector<int> &vec, vector<int> &out, int len_of_vector){
+	out = {};
 
 	for (int i: vec){
-		ret.insert(ret.begin(), i);
+		out.insert(out.begin(), i);
 	}
-
-	return ret;
 }
 void stringToVector(string &str, vector<int> &out){
 	out = {};
@@ -63,10 +61,28 @@ void putZero(vector<int> &vec, int number_of_zero){
 	}
 }
 
+void multiply(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
+	int sum;
+	for (int i = 0; i < len_of_vector; i++){
+		sum = 0;
+		for (int j = 0; j <= i; j++){
+			sum += a[j] * b[i - j];
+		}
+		out.push_back(sum);
+	}
+	for (int i = len_of_vector - 2; i >= 0; i--){
+		sum = 0;
+		for (int j = 0; j <= i; j++){
+			sum += a[len_of_vector - j - 1] * b[len_of_vector - (i - j) - 1];
+		}
+		out.push_back(sum);
+	}
+}
+
 vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector){
 	vector<int> ret = {};
-	if (len_of_vector == 1){
-		ret.push_back(a[0] * b[0]);
+	if (len_of_vector <= 100){
+		multiply(a, b, ret, len_of_vector);
 		return ret;
 	}
 
@@ -87,36 +103,23 @@ vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector){
 	vectorAdd(b_first_half, b_last_half, b_sum, half_of_len);
 	z1 = karatsuba(a_sum, b_sum, half_of_len);
 	vector<int> z_temp;
-	if (half_of_len != 1){
-		vectorSubtract(z1, z0, z_temp, len_of_vector - 1);
-		vectorSubtract(z_temp, z2, z1, len_of_vector - 1);
+	vectorSubtract(z1, z0, z_temp, len_of_vector - 1);
+	vectorSubtract(z_temp, z2, z1, len_of_vector - 1);
+
+	for (int i = 0; i < half_of_len; i++){
+		z0.push_back(0);
+		z1.insert(z1.begin(), 0);
+		z2.insert(z2.begin(), 0);
 	}
-	else{
-		vectorSubtract(z1, z0, z_temp, 1);
-		vectorSubtract(z_temp, z2, z1, 1);
+	for (int i = 0; i < half_of_len; i++){
+		z0.push_back(0);
+		z1.push_back(0);
+		z2.insert(z2.begin(), 0);
 	}
 
-	if (len_of_vector == 2){
-		ret.push_back(z0[0]);
-		ret.push_back(z1[0]);
-		ret.push_back(z2[0]);
-	}
-	else{
-		for (int i = 0; i < half_of_len; i++){
-			z0.push_back(0);
-			z1.insert(z1.begin(), 0);
-			z2.insert(z2.begin(), 0);
-		}
-		for (int i = 0; i < half_of_len; i++){
-			z0.push_back(0);
-			z1.push_back(0);
-			z2.insert(z2.begin(), 0);
-		}
-
-		vector<int> temp;
-		vectorAdd(z0, z1, temp, return_vector_len);
-		vectorAdd(temp, z2, ret, return_vector_len);
-	}
+	vector<int> temp;
+	vectorAdd(z0, z1, temp, return_vector_len);
+	vectorAdd(temp, z2, ret, return_vector_len);
 
 	return ret;
 }
@@ -125,7 +128,7 @@ int main(){
 	int c;
 	cin >> c;
 
-	vector<int> members, fans;
+	vector<int> members, _fans, fans;
 	int len_of_members, len_of_fans;
 	string _;
 
@@ -137,12 +140,12 @@ int main(){
 		cin >> _;
 		stringToVector(_, members);
 		cin >> _;
-		stringToVector(_, fans);
+		stringToVector(_, _fans);
 
 		len_of_members = members.size();
-		len_of_fans = fans.size();
+		len_of_fans = _fans.size();
 		
-		fans = reverseVector(fans, len_of_fans);
+		reverseVector(_fans, fans, len_of_fans);
 
 		int cnt = 1;
 		while (true){
