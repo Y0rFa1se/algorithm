@@ -1,174 +1,108 @@
 #include <iostream>
 #include <vector>
+#include <string>
+#include <algorithm>
+
+#define endl '\n'
+#define fastio cin.sync_with_stdio(false); cin.tie(nullptr)
 
 using namespace std;
 
-void splitInt(vector<int> &out, string str, char delim = ' '){
-	string temp;
-	for (int i = 0; i < str.size(); i++){
-		if (str[i] == delim){
-			out.push_back(stoi(temp));
-			temp = "";
-			continue;
-		}
-		else{
-			temp.push_back(str[i]);
-		}
-	}
-	out.push_back(stoi(temp));
-}
-void sliceVector(vector<int> &vec, vector<int> &out, int start_ind, int end_ind){
-	out = vector<int>(vec.begin() + start_ind, vec.begin() + end_ind);
+//O(n^2) 곱셈 알고리즘
+vector<int> multiply(const vector<int> &a, const vector<int> &b){
+    vector<int> c(a.size() + b.size() + 1, 0);
+    for (int i = 0; i < a.size(); i++)
+        for (int j = 0; j < b.size(); j++)
+            c[i + j] += (a[i] * b[j]);
+    return c;
 }
 
-
-void vectorAdd(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
-	out = {};
-
-	for (int i = 0; i < len_of_vector; i++){
-		out.push_back(a[i] + b[i]);
-	}
-}
-void vectorSubtract(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
-	out = {};
-
-	for (int i = 0; i < len_of_vector; i++){
-		out.push_back(a[i] - b[i]);
-	}
-}
-void reverseVector(vector<int> &vec, vector<int> &out, int len_of_vector){
-	out = {};
-
-	for (int i: vec){
-		out.insert(out.begin(), i);
-	}
-}
-void stringToVector(string &str, vector<int> &out){
-	out = {};
-	for (char i: str){
-		if (i == 'M'){
-			out.push_back(1);
-		}
-		else{
-			out.push_back(0);
-		}
-	}
+//a += b*(10^k)
+void addTo(vector<int> &a, const vector<int> &b, int k){
+    a.resize(max(a.size(), b.size() + k));
+    for (int i = 0; i < b.size(); i++)
+        a[i + k] += b[i];
 }
 
-void putZero(vector<int> &vec, int number_of_zero){
-	for (int i = 0; i < number_of_zero; i++){
-		vec.insert(vec.begin(), 0);
-	}
+//a -= b
+void subFrom(vector<int> &a, const vector<int> &b){
+    a.resize(max(a.size(), b.size()) + 1);
+    for (int i = 0; i < b.size(); i++)
+        a[i] -= b[i];
 }
 
-void multiply(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
-	int sum;
-	for (int i = 0; i < len_of_vector; i++){
-		sum = 0;
-		for (int j = 0; j <= i; j++){
-			sum += a[j] * b[i - j];
-		}
-		out.push_back(sum);
-	}
-	for (int i = len_of_vector - 2; i >= 0; i--){
-		sum = 0;
-		for (int j = 0; j <= i; j++){
-			sum += a[len_of_vector - j - 1] * b[len_of_vector - (i - j) - 1];
-		}
-		out.push_back(sum);
-	}
+vector<int> karatsuba(const vector<int> &a, const vector<int> &b){
+    int an = a.size(), bn = b.size();
+    if (an < bn)
+        return karatsuba(b, a);
+    if (an == 0 || bn == 0)
+        return vector<int>();
+    //크기가 작은경우 카라츠바 알고리즘을 사용하지 않고 구한다.
+    if (an <= 50)
+        return multiply(a, b);
+
+    /*카라츠바 알고리즘
+    ∴ z0 + ( z1 * 10^half ) + ( z2 * 10^(half*2) )
+        z0 = a0 * b0
+        z2 = a1 * b1
+        z1 = (a0 + b1) * (b0 + b1) - z0 - z2
+        a0 = a 앞부분 절반 b0 = b 앞부분 절반
+        a1 = a 뒷부분 절반 b1 = b 뒷부분 절반
+    */
+
+    //a와 b를 절반으로 나눈다.
+    int half = an / 2;
+    vector<int> a0(a.begin(), a.begin() + half);
+    vector<int> a1(a.begin() + half, a.end());
+    vector<int> b0(b.begin(), b.begin() + min<int>(bn, half));
+    vector<int> b1(b.begin() + min<int>(bn, half), b.end());
+
+    vector<int> z2 = karatsuba(a1, b1);
+    vector<int> z0 = karatsuba(a0, b0);
+
+    addTo(a0, a1, 0);
+    addTo(b0, b1, 0);
+
+    vector<int> z1 = karatsuba(a0, b0);
+    subFrom(z1, z0);
+    subFrom(z1, z2);
+
+    vector<int> res;
+    addTo(res, z0, 0);
+    addTo(res, z1, half);
+    addTo(res, z2, half * 2);
+
+    return res;
 }
 
-vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector){
-	vector<int> ret = {};
-	if (len_of_vector <= 100){
-		multiply(a, b, ret, len_of_vector);
-		return ret;
-	}
+int hugs(const string &members, const string &fans){
+    int N = members.size(), M = fans.size();
+    vector<int> A(N), B(M);
+    for (int i = 0; i < N; i++)
+        A[i] = (members[i] == 'M');
+    for (int i = 0; i < M; i++)
+        B[M-i-1] = (fans[i] == 'M');
 
-	int return_vector_len = (2 * len_of_vector) - 1;
+    vector<int> C = karatsuba(A, B);
+    int allHugs = 0;
 
-	vector<int> a_first_half, a_last_half, b_first_half, b_last_half;
-	int half_of_len = len_of_vector / 2;
-	sliceVector(a, a_first_half, 0, half_of_len);
-	sliceVector(a, a_last_half, half_of_len, len_of_vector);
-	sliceVector(b, b_first_half, 0, half_of_len);
-	sliceVector(b, b_last_half, half_of_len, len_of_vector);
+    //모든 멤버들이 펜을 만나기 시작한 시점부터
+    for (int i = N - 1; i < M; i++)
+        if (C[i] == 0)
+            allHugs++;
 
-	vector<int> z0, z1, z2;
-	z0 = karatsuba(a_first_half, b_first_half, half_of_len);
-	z2 = karatsuba(a_last_half, b_last_half, half_of_len);
-	vector<int> a_sum, b_sum;
-	vectorAdd(a_first_half, a_last_half, a_sum, half_of_len);
-	vectorAdd(b_first_half, b_last_half, b_sum, half_of_len);
-	z1 = karatsuba(a_sum, b_sum, half_of_len);
-	vector<int> z_temp;
-	vectorSubtract(z1, z0, z_temp, len_of_vector - 1);
-	vectorSubtract(z_temp, z2, z1, len_of_vector - 1);
-
-	for (int i = 0; i < half_of_len; i++){
-		z0.push_back(0);
-		z1.insert(z1.begin(), 0);
-		z2.insert(z2.begin(), 0);
-	}
-	for (int i = 0; i < half_of_len; i++){
-		z0.push_back(0);
-		z1.push_back(0);
-		z2.insert(z2.begin(), 0);
-	}
-
-	vector<int> temp;
-	vectorAdd(z0, z1, temp, return_vector_len);
-	vectorAdd(temp, z2, ret, return_vector_len);
-
-	return ret;
+    return allHugs;
 }
 
 int main(){
-	int c;
-	cin >> c;
+    fastio;
 
-	vector<int> members, _fans, fans;
-	int len_of_members, len_of_fans;
-	string _;
-
-	vector<int> ret;
-
-	int n;
-
-	for (int i = 0; i < c; i++){
-		cin >> _;
-		stringToVector(_, members);
-		cin >> _;
-		stringToVector(_, _fans);
-
-		len_of_members = members.size();
-		len_of_fans = _fans.size();
-		
-		reverseVector(_fans, fans, len_of_fans);
-
-		int cnt = 1;
-		while (true){
-			if (len_of_fans <= cnt){
-				break;
-			}
-			cnt *= 2;
-		}
-
-		n = (2 * cnt) - 1;
-
-		putZero(members, cnt - len_of_members);
-		putZero(fans, cnt - len_of_fans);
-
-		ret = karatsuba(members, fans, cnt);
-
-		cnt = 0;
-		for (int j = len_of_members - 1; j < len_of_fans; j++){
-			if (ret[n - j - 1] == 0){
-				cnt += 1;
-			}
-		}
-
-		cout << cnt << endl;
-	}
+    int _;
+    cin >> _;
+    while (_--){
+        string members, fans;
+        cin >> members >> fans;
+        cout << hugs(members, fans) << endl;
+    }
+    return 0;
 }
