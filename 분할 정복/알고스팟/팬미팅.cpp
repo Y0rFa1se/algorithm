@@ -3,39 +3,6 @@
 
 using namespace std;
 
-void splitInt(vector<int> &out, string str, char delim = ' '){
-	string temp;
-	for (int i = 0; i < str.size(); i++){
-		if (str[i] == delim){
-			out.push_back(stoi(temp));
-			temp = "";
-			continue;
-		}
-		else{
-			temp.push_back(str[i]);
-		}
-	}
-	out.push_back(stoi(temp));
-}
-void sliceVector(vector<int> &vec, vector<int> &out, int start_ind, int end_ind){
-	out = vector<int>(vec.begin() + start_ind, vec.begin() + end_ind);
-}
-
-
-void vectorAdd(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
-	out = {};
-
-	for (int i = 0; i < len_of_vector; i++){
-		out.push_back(a[i] + b[i]);
-	}
-}
-void vectorSubtract(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
-	out = {};
-
-	for (int i = 0; i < len_of_vector; i++){
-		out.push_back(a[i] - b[i]);
-	}
-}
 void reverseVector(vector<int> &vec, vector<int> &out, int len_of_vector){
 	out = {};
 
@@ -48,63 +15,70 @@ void stringToVector(string &str, vector<int> &out){
 	for (char i: str){
 		if (i == 'M'){
 			out.push_back(1);
-		}
-		else{
+		}else{
 			out.push_back(0);
 		}
 	}
 }
-
 void putZero(vector<int> &vec, int number_of_zero){
 	for (int i = 0; i < number_of_zero; i++){
 		vec.insert(vec.begin(), 0);
 	}
 }
 
-void multiply(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
+
+
+void vectorAdd(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector, int a_start, int b_start){
+	out = {};
+
+	for (int i = 0; i < len_of_vector; i++){
+		out.push_back(a[a_start + i] + b[b_start + i]);
+	}
+}
+void vectorSubtract(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector){
+	out = {};
+	for (int i = 0; i < len_of_vector; i++){
+		out.push_back(a[i] - b[i]);
+	}
+}
+void multiply(vector<int> &a, vector<int> &b, vector<int> &out, int len_of_vector, int start){
 	int sum;
 	for (int i = 0; i < len_of_vector; i++){
 		sum = 0;
 		for (int j = 0; j <= i; j++){
-			sum += a[j] * b[i - j];
+			sum += a[start + j] * b[start + i - j];
 		}
 		out.push_back(sum);
 	}
 	for (int i = len_of_vector - 2; i >= 0; i--){
 		sum = 0;
 		for (int j = 0; j <= i; j++){
-			sum += a[len_of_vector - j - 1] * b[len_of_vector - (i - j) - 1];
+			sum += a[start + len_of_vector - j - 1] * b[start + len_of_vector - (i - j) - 1];
 		}
 		out.push_back(sum);
 	}
 }
 
-vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector){
+vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector, int start, int end){
 	vector<int> ret = {};
-	if (len_of_vector <= 100){
-		multiply(a, b, ret, len_of_vector);
+	if (len_of_vector <= 50){
+		multiply(a, b, ret, len_of_vector, start);
 		return ret;
 	}
 
-	int return_vector_len = (2 * len_of_vector) - 1;
-
-	vector<int> a_first_half, a_last_half, b_first_half, b_last_half;
 	int half_of_len = len_of_vector / 2;
-	sliceVector(a, a_first_half, 0, half_of_len);
-	sliceVector(a, a_last_half, half_of_len, len_of_vector);
-	sliceVector(b, b_first_half, 0, half_of_len);
-	sliceVector(b, b_last_half, half_of_len, len_of_vector);
 
 	vector<int> z0, z1, z2;
-	z0 = karatsuba(a_first_half, b_first_half, half_of_len);
-	z2 = karatsuba(a_last_half, b_last_half, half_of_len);
-	vector<int> a_sum, b_sum;
-	vectorAdd(a_first_half, a_last_half, a_sum, half_of_len);
-	vectorAdd(b_first_half, b_last_half, b_sum, half_of_len);
-	z1 = karatsuba(a_sum, b_sum, half_of_len);
-	vector<int> z_temp;
-	vectorSubtract(z1, z0, z_temp, len_of_vector - 1);
-	vectorSubtract(z_temp, z2, z1, len_of_vector - 1);
+	z0 = karatsuba(a, b, half_of_len, start, half_of_len - 1);
+	z2 =  karatsuba(a, b, half_of_len, half_of_len, end);
+
+	vector<int> z_temp1, z_temp2;
+	vectorAdd(a, a, z_temp1, half_of_len, 0, half_of_len);
+	vectorAdd(b, b, z_temp2, half_of_len, 0, half_of_len);
+	z1 = karatsuba(z_temp1, z_temp2, half_of_len, 0, half_of_len - 1);
+
+	vectorSubtract(z1, z0, z_temp1, half_of_len);
+	vectorSubtract(z_temp1, z2, z1, half_of_len);
 
 	for (int i = 0; i < half_of_len; i++){
 		z0.push_back(0);
@@ -117,14 +91,18 @@ vector<int> karatsuba(vector<int> &a, vector<int> &b, int len_of_vector){
 		z2.insert(z2.begin(), 0);
 	}
 
-	vector<int> temp;
-	vectorAdd(z0, z1, temp, return_vector_len);
-	vectorAdd(temp, z2, ret, return_vector_len);
+	vectorAdd(z0, z1, z_temp1, (2 * len_of_vector) - 1, 0, 0);
+	vectorAdd(z_temp1, z2, ret, (2 * len_of_vector) - 1, 0, 0);
 
 	return ret;
 }
 
+
 int main(){
+	ios::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+
 	int c;
 	cin >> c;
 
@@ -160,7 +138,7 @@ int main(){
 		putZero(members, cnt - len_of_members);
 		putZero(fans, cnt - len_of_fans);
 
-		ret = karatsuba(members, fans, cnt);
+		ret = karatsuba(members, fans, cnt, 0, cnt - 1);
 
 		cnt = 0;
 		for (int j = len_of_members - 1; j < len_of_fans; j++){
@@ -169,6 +147,6 @@ int main(){
 			}
 		}
 
-		cout << cnt << endl;
+		cout << cnt << "\n";
 	}
 }
